@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Prueba de conexión";
+}
+
+<h1>Prueba de conexión a la base de datos</h1>
+
+@if (ViewBag.Exito == true)
+{
+    <div class="alert alert-success">
+        <h4>¡Conexión exitosa!</h4>
+        <p class="mb-0">@ViewBag.Mensaje</p>
+    </div>
+}
+else
+{
+    <div class="alert alert-danger">
+        <h4>No se pudo conectar</h4>
+        <p class="mb-0">@ViewBag.Mensaje</p>
+    </div>
+    <p class="text-muted">
+        Revisa la cadena de conexión <code>BDBIBLIOTECA2026</code> en <code>appsettings.json</code>
+        y que el servicio de SQL Server esté iniciado.
+    </p>
+}
+
+<a asp-controller="Home" asp-action="Index" class="btn btn-secondary mt-3">← Volver</a>

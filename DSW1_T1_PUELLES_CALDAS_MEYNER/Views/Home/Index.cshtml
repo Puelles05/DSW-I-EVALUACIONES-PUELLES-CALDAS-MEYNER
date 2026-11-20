@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Inicio";
+}
+
+<partial name="_Mensajes" />
+
+<div class="p-5 mb-4 bg-light rounded-3">
+    <h1 class="display-5 fw-bold">Sistema de Biblioteca</h1>
+    <p class="col-md-8 fs-5">
+        Evaluación de laboratorio T1 — Desarrollo de Servicios Web I.
+        Fecha y hora actual: <strong id="reloj">@DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</strong>
+    </p>
+    <a class="btn btn-primary btn-lg" asp-controller="Libro" asp-action="Index">Mantenimiento de libros</a>
+    <a class="btn btn-outline-primary btn-lg" asp-controller="Libro" asp-action="PrestamosPorAnio">Préstamos por año</a>
+</div>
+
+<script>
+    function actualizarReloj() {
+        const p = n => String(n).padStart(2, '0');
+        const d = new Date();
+        document.getElementById('reloj').textContent =
+            `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ` +
+            `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+    }
+    setInterval(actualizarReloj, 1000);
+</script>

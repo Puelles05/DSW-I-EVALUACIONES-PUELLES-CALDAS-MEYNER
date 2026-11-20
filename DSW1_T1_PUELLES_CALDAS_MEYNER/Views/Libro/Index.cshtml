@@ -1,0 +1,122 @@
+@model IEnumerable<Libro>
+@{
+    ViewData["Title"] = "Libros";
+    string buscar = ViewBag.Buscar as string ?? string.Empty;
+    bool hayBusqueda = !string.IsNullOrWhiteSpace(buscar);
+    int pagina = ViewBag.Pagina;
+    int totalPaginas = ViewBag.TotalPaginas;
+    int total = ViewBag.Total;
+    int primera = Math.Max(1, Math.Min(pagina - 2, totalPaginas - 4));
+    int ultima = Math.Min(totalPaginas, primera + 4);
+}
+
+<partial name="_Mensajes" />
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">@ViewData["Titulo"]</h1>
+    <a class="btn btn-success" asp-action="Crear">+ Registrar libro</a>
+</div>
+
+<form asp-action="Index" method="get" class="row g-2 align-items-end mb-4">
+    <div class="col-12 col-md-6 col-lg-5">
+        <input type="text" id="buscar" name="buscar" value="@buscar" maxlength="120"
+               class="form-control" placeholder="Buscar Libro..." />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+        @if (hayBusqueda)
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+        }
+    </div>
+</form>
+
+@if (total == 0)
+{
+    <div class="alert alert-warning">
+        @if (hayBusqueda)
+        {
+            <text>No se encontraron libros que coincidan con “@buscar”.</text>
+        }
+        else
+        {
+            <text>No hay libros registrados.</text>
+        }
+    </div>
+}
+else
+{
+    <p class="mb-2">
+        @if (hayBusqueda)
+        {
+            <text>Total de libros encontrados para “<strong>@buscar</strong>”: <strong>@total</strong></text>
+        }
+        else
+        {
+            <text>Total de libros: <strong>@total</strong></text>
+        }
+    </p>
+
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Código</th>
+                <th>Título</th>
+                <th>Categoría</th>
+                <th>ISBN</th>
+                <th class="text-center">Año</th>
+                <th class="text-end">Stock</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var l in Model)
+            {
+                <tr>
+                    <td>@l.CodLibro</td>
+                    <td>@l.Titulo</td>
+                    <td>@l.NombreCategoria</td>
+                    <td>@l.ISBN</td>
+                    <td class="text-center">@l.AnioPublicacion</td>
+                    <td class="text-end">@l.Stock</td>
+                    <td class="text-center">
+                        @if (l.Estado == 1)
+                        {
+                            <span class="badge bg-success">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactivo</span>
+                        }
+                    </td>
+                    <td class="text-center acciones">
+                        <a asp-action="Editar" asp-route-id="@l.CodLibro" class="btn btn-sm btn-warning">Editar</a>
+                        <form asp-action="Eliminar" asp-route-id="@l.CodLibro"
+                              asp-route-pagina="@pagina" asp-route-buscar="@buscar" method="post"
+                              data-titulo="@l.Titulo" onsubmit="return confirmarEliminacion(this);">
+                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <nav aria-label="Paginación de libros">
+        <ul class="pagination">
+            <li class="page-item @(pagina == 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-buscar="@buscar" asp-route-pagina="@(pagina - 1)">Anterior</a>
+            </li>
+            @for (int i = primera; i <= ultima; i++)
+            {
+                <li class="page-item @(i == pagina ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-buscar="@buscar" asp-route-pagina="@i">@i</a>
+                </li>
+            }
+            <li class="page-item @(pagina == totalPaginas ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-buscar="@buscar" asp-route-pagina="@(pagina + 1)">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+}

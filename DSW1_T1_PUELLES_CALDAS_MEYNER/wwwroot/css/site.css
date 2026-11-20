@@ -1,0 +1,20 @@
+body {
+    padding-bottom: 40px;
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+}
+
+.field-validation-error {
+    font-size: 0.875rem;
+}
+
+.input-validation-error {
+    border-color: #dc3545;
+}
+
+.acciones form {
+    display: inline-block;
+}

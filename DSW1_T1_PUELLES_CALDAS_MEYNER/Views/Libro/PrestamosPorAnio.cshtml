@@ -1,0 +1,90 @@
+@model IEnumerable<PrestamoAnio>
+@{
+    ViewData["Title"] = "Préstamos por año";
+    int anio = ViewBag.Anio;
+    int pagina = ViewBag.Pagina;
+    int totalPaginas = ViewBag.TotalPaginas;
+    int total = ViewBag.Total;
+    int primera = Math.Max(1, Math.Min(pagina - 2, totalPaginas - 4));
+    int ultima = Math.Min(totalPaginas, primera + 4);
+
+    string ClaseEstado(string estado) => estado switch
+    {
+        "Devuelto" => "bg-success",
+        "Pendiente" => "bg-warning text-dark",
+        "Retrasado" => "bg-danger",
+        _ => "bg-secondary"
+    };
+}
+
+<h1 class="h3 mb-3">Préstamos por año</h1>
+
+<form asp-action="PrestamosPorAnio" method="get" class="row g-2 align-items-end mb-4">
+    <div class="col-auto">
+        <label for="anio" class="form-label">Año de préstamo</label>
+        <input type="number" id="anio" name="anio" value="@anio" min="1900" max="2100" class="form-control" required />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Consultar</button>
+    </div>
+</form>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+else if (total == 0)
+{
+    <div class="alert alert-warning">No se encontraron préstamos registrados en el año @anio.</div>
+}
+else
+{
+    <p class="mb-2">
+        Total de préstamos encontrados en @anio: <strong>@total</strong>
+    </p>
+
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>N°</th>
+                <th>Fecha de préstamo</th>
+                <th>Fecha de devolución</th>
+                <th>Estudiante</th>
+                <th>Libro</th>
+                <th class="text-center">Estado</th>
+                <th class="text-end">Multa (S/)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td>@p.IdPrestamo</td>
+                    <td>@p.FechaPrestamo.ToString("dd/MM/yyyy")</td>
+                    <td>@(p.FechaDevolucion.HasValue ? p.FechaDevolucion.Value.ToString("dd/MM/yyyy") : "—")</td>
+                    <td>@p.ApellidosNombres</td>
+                    <td>@p.Titulo</td>
+                    <td class="text-center"><span class="badge @ClaseEstado(p.EstadoPrestamo)">@p.EstadoPrestamo</span></td>
+                    <td class="text-end">@p.Multa.ToString("N2")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <nav aria-label="Paginación de préstamos">
+        <ul class="pagination">
+            <li class="page-item @(pagina == 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="PrestamosPorAnio" asp-route-anio="@anio" asp-route-pagina="@(pagina - 1)">Anterior</a>
+            </li>
+            @for (int i = primera; i <= ultima; i++)
+            {
+                <li class="page-item @(i == pagina ? "active" : "")">
+                    <a class="page-link" asp-action="PrestamosPorAnio" asp-route-anio="@anio" asp-route-pagina="@i">@i</a>
+                </li>
+            }
+            <li class="page-item @(pagina == totalPaginas ? "disabled" : "")">
+                <a class="page-link" asp-action="PrestamosPorAnio" asp-route-anio="@anio" asp-route-pagina="@(pagina + 1)">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+}
